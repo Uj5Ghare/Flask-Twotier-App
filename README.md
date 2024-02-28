@@ -80,23 +80,23 @@ docker-compose down
 
 - First create a docker image from Dockerfile
 ```bash
-docker build -t flaskapp .
+docker build -t flask .
 ```
 
 - Now, make sure that you have created a network using following command
 ```bash
-docker network create twotier
+docker network create net
 ```
 
 - Attach both the containers in the same network, so that they can communicate with each other
 
 i) MySQL container 
 ```bash
-docker run -d --name mysql -v mysql-data:/var/lib/mysql -v ./message.sql:/docker-entrypoint-initdb.d/message.sql --network=twotier -e MYSQL_DATABASE=mydb -e MYSQL_USER=root -e MYSQL_ROOT_PASSWORD="admin" -p 3360:3360 mysql:5.7
+docker run -d --name mysql --net net -e MYSQL_ROOT_PASSWORD="admin" -e MYSQL_DATABASE="db" -v ./message.sql:/docker-entrypoint-initdb.d/message.sql -p 3306:3306 --rm mysql:5.7
 ```
 ii) Backend container
 ```bash
-docker run -d --name flaskapp -v mysql-data:/var/lib/mysql -v ./message.sql:/docker-entrypoint-initdb.d/message.sql --network=twotier -e MYSQL_HOST=mysql -e MYSQL_USER=root -e MYSQL_PASSWORD=admin -e MYSQL_DB=mydb -p 5000:5000 flaskapp:latest
+ docker run -d --name flask --net net -e MYSQL_DB="db" -e MYSQL_USER="root" -e MYSQL_HOST="mysql" -e MYSQL_PASSWORD="admin"  -p 5000:5000 flask:latest
 ```
 
 ## Notes
